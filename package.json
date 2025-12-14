@@ -1,21 +1,29 @@
 {
   "name": "ke-origin",
   "version": "0.1.0",
-  "type": "module",
   "private": true,
-  "scripts": {
-    "dev": "vercel dev",
-    "build": "echo \"No build step required\"",
-    "start": "vercel start"
-  },
+  "description": "KE-Origin — Drive-backed memory brain with OpenAI embeddings (Vercel serverless).",
+  "license": "MIT",
   "engines": {
     "node": "20.x"
   },
+  "scripts": {
+    "dev": "vercel dev",
+    "build": "echo \"No build step required\"",
+    "start": "vercel start",
+    "deploy": "vercel --prod"
+  },
   "dependencies": {
-    "dotenv": "^16.4.5",
+    "dotenv": "^17.2.3",
     "googleapis": "^164.1.0",
     "openai": "^6.8.1",
     "uuid": "^11.1.0",
-    "zod": "^3.23.8"
+    "zod": "^3.25.0"
+  },
+  "devDependencies": {
+    "@types/node": "^20.11.30",
+    "@types/uuid": "^10.0.0",
+    "ts-node": "^10.9.2",
+    "typescript": "^5.6.3"
   }
 }

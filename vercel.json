@@ -6,10 +6,8 @@
       "maxDuration": 30
     }
   },
-  "routes": [
-    {
-      "src": "/api/(.*)",
-      "dest": "/api/$1"
-    }
-  ]
+  "outputDirectory": ".",
+  "cleanUrls": true,
+  "trailingSlash": false,
+  "regions": ["iad1"]
 }
