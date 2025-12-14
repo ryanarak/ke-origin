@@ -1,13 +1,12 @@
 {
   "$schema": "https://openapi.vercel.sh/vercel.json",
   "functions": {
-    "api/**/*.ts": {
+    "api/**/*.js": {
       "runtime": "@vercel/node@3.1.0",
       "maxDuration": 30
     }
   },
-  "outputDirectory": ".",
-  "cleanUrls": true,
-  "trailingSlash": false,
-  "regions": ["iad1"]
+  "routes": [
+    { "src": "/(.*)", "dest": "/api/$1" }
+  ]
 }
