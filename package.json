@@ -1,0 +1,23 @@
+{
+  "name": "ke-origin",
+  "version": "0.1.0",
+  "type": "module",
+  "private": true,
+  "description": "KE-Origin — Drive-backed cognitive memory substrate.",
+  "scripts": {
+    "dev": "vercel dev",
+    "build": "echo \"No build step required\"",
+    "start": "vercel start",
+    "deploy": "vercel --prod"
+  },
+  "engines": {
+    "node": "20.x"
+  },
+  "dependencies": {
+    "dotenv": "^16.4.5",
+    "googleapis": "^164.1.0",
+    "openai": "^6.8.1",
+    "uuid": "^11.0.5",
+    "zod": "^3.23.8"
+  }
+}

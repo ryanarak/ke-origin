@@ -1,0 +1,303 @@
+{
+  "openapi": "3.1.0",
+  "info": {
+    "title": "KE-Origin Sovereign Memory API",
+    "version": "1.0.0",
+    "description": "Sovereign contract between Randall (Custom GPT) and the KE-Origin semantic memory backend. Defines all allowed memory operations."
+  },
+  "servers": [
+    {
+      "url": "https://YOUR-VERCEL-DEPLOYMENT-URL",
+      "description": "KE-Origin production deployment"
+    }
+  ],
+  "security": [
+    {
+      "KeOriginSecret": []
+    }
+  ],
+  "components": {
+    "securitySchemes": {
+      "KeOriginSecret": {
+        "type": "apiKey",
+        "in": "header",
+        "name": "x-keorigin-secret"
+      }
+    },
+    "schemas": {
+      "ErrorResponse": {
+        "type": "object",
+        "properties": {
+          "error": { "type": "string" },
+          "details": { "type": "string" },
+          "code": { "type": "string" }
+        },
+        "required": ["error"]
+      },
+
+      "HealthResponse": {
+        "type": "object",
+        "properties": {
+          "status": {
+            "type": "string",
+            "enum": ["ok", "degraded", "error"]
+          },
+          "details": {
+            "type": "object",
+            "additionalProperties": true
+          }
+        },
+        "required": ["status"]
+      },
+
+      "CreateNodeRequest": {
+        "type": "object",
+        "properties": {
+          "title": { "type": "string" },
+          "content": { "type": "string" },
+          "type": {
+            "type": "string",
+            "enum": ["note", "summary", "principle", "spec", "log", "other"]
+          },
+          "sourceType": {
+            "type": "string",
+            "enum": ["manual", "conversation", "document", "system", "other"]
+          },
+          "sourceRef": { "type": "string" }
+        },
+        "required": ["content"]
+      },
+
+      "CreateNodeResponse": {
+        "type": "object",
+        "properties": {
+          "id": { "type": "string" },
+          "filename": { "type": "string" }
+        },
+        "required": ["id"]
+      },
+
+      "LogConversationRequest": {
+        "type": "object",
+        "properties": {
+          "sessionId": { "type": "string" },
+          "messages": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "role": { "type": "string" },
+                "content": { "type": "string" }
+              },
+              "required": ["role", "content"]
+            }
+          },
+          "title": { "type": "string" },
+          "createSummaryNode": { "type": "boolean" }
+        },
+        "required": ["sessionId", "messages"]
+      },
+
+      "LogConversationResponse": {
+        "type": "object",
+        "properties": {
+          "conversationId": { "type": "string" },
+          "summaryNodeId": { "type": "string" }
+        },
+        "required": ["conversationId"]
+      },
+
+      "RetrieveKnowledgeRequest": {
+        "type": "object",
+        "properties": {
+          "query": { "type": "string" },
+          "topK": { "type": "integer", "minimum": 1, "maximum": 20 }
+        },
+        "required": ["query"]
+      },
+
+      "RetrieveKnowledgeResponse": {
+        "type": "object",
+        "properties": {
+          "results": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "score": { "type": "number" },
+                "node": {
+                  "type": "object",
+                  "properties": {
+                    "id": { "type": "string" },
+                    "title": { "type": "string" },
+                    "content": { "type": "string" },
+                    "type": { "type": "string" }
+                  },
+                  "required": ["id", "content"]
+                }
+              },
+              "required": ["score", "node"]
+            }
+          }
+        },
+        "required": ["results"]
+      },
+
+      "IngestDocumentRequest": {
+        "type": "object",
+        "properties": {
+          "filename": { "type": "string" },
+          "driveFileId": { "type": "string" }
+        }
+      },
+
+      "IngestDocumentResponse": {
+        "type": "object",
+        "properties": {
+          "documentId": { "type": "string" },
+          "summaryNodeId": { "type": "string" }
+        },
+        "required": ["documentId"]
+      }
+    }
+  },
+  "paths": {
+    "/api/health": {
+      "get": {
+        "operationId": "healthCheck",
+        "summary": "Check system health",
+        "description": "Verifies config, Drive access, index integrity, and optional OpenAI connectivity.",
+        "responses": {
+          "200": {
+            "description": "Health status",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/HealthResponse" }
+              }
+            }
+          },
+          "500": {
+            "description": "Health check failure",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/ErrorResponse" }
+              }
+            }
+          }
+        }
+      }
+    },
+
+    "/api/create-node": {
+      "post": {
+        "operationId": "createNode",
+        "summary": "Create a knowledge node",
+        "description": "Stores a single KnowledgeNode and indexes it semantically.",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": { "$ref": "#/components/schemas/CreateNodeRequest" }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Node created",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/CreateNodeResponse" }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid request",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/ErrorResponse" }
+              }
+            }
+          }
+        }
+      }
+    },
+
+    "/api/log-conversation": {
+      "post": {
+        "operationId": "logConversation",
+        "summary": "Log a conversation",
+        "description": "Persists a conversation log and optionally creates a summary KnowledgeNode.",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": { "$ref": "#/components/schemas/LogConversationRequest" }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Conversation logged",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/LogConversationResponse" }
+              }
+            }
+          }
+        }
+      }
+    },
+
+    "/api/retrieve-knowledge": {
+      "post": {
+        "operationId": "retrieveKnowledge",
+        "summary": "Retrieve relevant knowledge",
+        "description": "Performs semantic search over indexed KnowledgeNodes.",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": { "$ref": "#/components/schemas/RetrieveKnowledgeRequest" }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Search results",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/RetrieveKnowledgeResponse" }
+              }
+            }
+          }
+        }
+      }
+    },
+
+    "/api/ingest-document": {
+      "post": {
+        "operationId": "ingestDocument",
+        "summary": "Ingest a document from Uploads",
+        "description": "Processes a document from the Uploads folder and creates indexed memory.",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": { "$ref": "#/components/schemas/IngestDocumentRequest" }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Document ingested",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/IngestDocumentResponse" }
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}

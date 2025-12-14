@@ -1,0 +1,35 @@
+{
+  "compilerOptions": {
+    /* Language & emit */
+    "target": "ES2020",                 // >= ES2015 to support #private and modern libs
+    "module": "commonjs",
+    "lib": ["ES2020"],
+    "moduleResolution": "node",
+    "resolveJsonModule": true,
+    "allowJs": false,
+    "noEmit": true,
+
+    /* Strictness */
+    "strict": true,
+    "noImplicitAny": true,
+    "noUnusedLocals": true,
+    "noUnusedParameters": true,
+    "noImplicitReturns": true,
+
+    /* Interop with modern packages (Zod locales, etc.) */
+    "esModuleInterop": true,
+    "allowSyntheticDefaultImports": true,
+
+    /* Node / tooling friendliness */
+    "skipLibCheck": true,               // <- Ignore type errors in node_modules (Zod locales, google-auth, etc.)
+    "forceConsistentCasingInFileNames": true,
+
+    /* Paths (optional, handy later) */
+    // "baseUrl": "./",
+    // "paths": {
+    //   "@/*": ["*"]
+    // }
+  },
+  "include": ["./**/*.ts"],
+  "exclude": ["node_modules", ".vercel"]
+}
