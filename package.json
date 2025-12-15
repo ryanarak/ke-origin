@@ -9,8 +9,8 @@
   },
   "scripts": {
     "dev": "vercel dev",
-    "build": "echo \"No build step required\"",
-    "start": "vercel start",
+    "build": "tsc",
+    "start": "node dist/api/relay.js",
     "deploy": "vercel --prod"
   },
   "dependencies": {
